@@ -19,32 +19,43 @@ function sendNumberValue(number) {
 }
 
 function addDecimal() {
-  // If operato pressed,don't add decimal
+  // If operator pressed,don't add decimal
   if (awaitingNextValue) return;
   // if no decimal ,add on
   if (!calculatorDisplay.textContent.includes('.')) {
     calculatorDisplay.textContent = `${calculatorDisplay.textContent}.`;
   }
 }
+// Calculate first and second values depending on operator
+const calculate = {
+  '/': (firstNumber, secondNumber) => firstNumber / secondNumber,
 
+  '*': (firstNumber, secondNumber) => firstNumber * secondNumber,
+
+  '+': (firstNumber, secondNumber) => firstNumber + secondNumber,
+
+  '-': (firstNumber, secondNumber) => firstNumber - secondNumber,
+
+  '=': (firstNumber, secondNumber) => secondNumber,
+};
 function useOperator(operator) {
-  const currentValue = +calculatorDisplay.textContent;
+  const currentValue = Number(calculatorDisplay.textContent);
+  //   prevent multiple operators
+  if (operatorValue && awaitingNextValue) {
+    operatorValue = operator;
+    return;
+  }
   //   Asign first value if no value
   if (!firstValue) {
     firstValue = currentValue;
   } else {
+    const calculation = calculate[operatorValue](firstValue, currentValue);
+    calculatorDisplay.textContent = calculation;
+    firstValue = calculation;
   }
   //   Ready for next value,store operator
   awaitingNextValue = true;
   operatorValue = operator;
-  console.log(
-    'firstvalue',
-    firstValue,
-    'operator',
-    operatorValue,
-    'current',
-    currentValue
-  );
 }
 
 // Add Event Listeners for numbers,operators,decimal buttons
@@ -55,7 +66,7 @@ inputBtns.forEach((inputBtn) => {
   } else if (inputBtn.classList.contains('operator')) {
     inputBtn.addEventListener('click', () => useOperator(inputBtn.value));
   } else if (inputBtn.classList.contains('decimal')) {
-    inputBtn.addEventListener('click', addDecimal);
+    inputBtn.addEventListener('click', () => addDecimal());
   }
 });
 
